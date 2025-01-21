@@ -1,23 +1,4 @@
-import connectDB from "../../utils/database";
-import { ItemModel } from "../../utils/schemaModels";
-
-const itemCreate = async (formData) => {
-  "use server";
-
-  const itemData = {
-    title: formData.get("title"),
-    price: formData.get("price"),
-    image: formData.get("image"),
-    description: formData.get("description"),
-  };
-
-  try {
-    await connectDB();
-    await ItemModel.create(itemData);
-  } catch {
-    throw new Error("エラー：アイテム作成失敗");
-  }
-};
+import { itemCreate } from "@/app/actions/itemCreate";
 
 const CreateItem = () => {
   return (
