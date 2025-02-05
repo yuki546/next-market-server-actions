@@ -1,7 +1,13 @@
 "use server";
-
+import { cookies } from "next/headers";
+import { SignJWT } from "jose";
 import connectDB from "../utils/database";
 import { UserModel } from "../utils/schemaModels";
+
+const config = {
+  maxAge: 60 * 60 * 24,
+  httpOnly: true,
+};
 
 export const userLogin = async (prevState, formData) => {
   const userData = {
@@ -16,6 +22,22 @@ export const userLogin = async (prevState, formData) => {
       // ユーザーデータが存在する場合の処理
       if (userData.password === savedUserData.password) {
         // パスワードが正しい場合の処理
+        const secretKey = new TextEncoder().encode(
+          "next-market-server-actions"
+        );
+
+        const payload = {
+          email: userData.email,
+        };
+
+        const token = await new SignJWT(payload)
+          .setProtectedHeader({ alg: "HS256" })
+          .setExpirationTime("1d")
+          .sign(secretKey);
+
+        const cookie = await cookies();
+        cookie.set("token", token, config);
+
         return { message: "ログイン成功" };
       } else {
         // パスワードが間違っている場合の処理
